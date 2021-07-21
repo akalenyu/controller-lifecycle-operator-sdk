@@ -224,6 +224,10 @@ func (r *Reconciler) ReconcileUpdate(logger logr.Logger, cr client.Object, opera
 
 			r.setLastAppliedConfiguration(desiredObj)
 			sdk.SetLabel(r.createVersionLabel, operatorVersion, desiredObj)
+			dynamicLabels := sdk.GetRecommendedLabelsFromCr(cr)
+			for k, v := range dynamicLabels {
+				sdk.SetLabel(k, v, desiredObj)
+			}
 
 			if err = controllerutil.SetControllerReference(cr, desiredObj, r.scheme); err != nil {
 				r.recorder.Event(cr, corev1.EventTypeWarning, createResourceFailed, fmt.Sprintf("Failed to create resource %s, %v", desiredObj.GetName(), err))
